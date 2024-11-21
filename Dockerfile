@@ -3,7 +3,7 @@
 # docker build -t cpp_dev .
 # 
 # To create the docker container, attach/create a volume, start it and open the terminal:
-# docker run --name cpp_dev -it --mount type=volume,src=volume_name,dst=/home/dev/vol cpp_dev
+# docker run --name container_name -it --mount type=volume,src=volume_name,dst=/home/dev/vol cpp_dev
 #
 # To start the existing container and open the terminal:
 # docker start --attach --interactive cpp_dev
