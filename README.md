@@ -17,10 +17,10 @@ docker build -t cpp_dev .
 To create a new container, attach/create a volume, and start it:
 
 ```docker
-docker run --name cpp_dev -it --mount type=volume,src=volume_name,dst=/home/dev/vol cpp_dev
+docker run --name container_name -it --mount type=volume,src=volume_name,dst=/home/dev/vol cpp_dev
 ```
 
-Replace `volume_name` with the desired name of your volume. If the volume doesn't exist, Docker will create it automatically.
+If the volume doesn't exist, Docker will create it automatically.
 
 ### Start an Existing Container
 
