@@ -16,14 +16,21 @@ SHELL ["/bin/bash", "-c"]
 LABEL Maintainer="LachlanTaylor"
 LABEL Description="Ubuntu development environment for C++"
 
-# 'apt-get update' must be && with 'apt-get install' to ensure package versions are up-to-date.
-# --no-install-recommends excludes recommended packages to keep containers lightweight and grant
+# 'apt-get update' must be && with 'apt-get install' to ensure package versions remain up-to-date when
+# appending packages. If apt-get update is on its own line it is cached by Docker and will not be updated.
+# '--no-install-recommends' excludes recommended packages to keep containers lightweight and grant
 # more control over installed dependencies.
 RUN apt-get update && apt-get install -y --no-install-recommends \
 ca-certificates \
+cmake \
 g++ \
 git \
 sudo
+# - ca-certificates is used for github authentication
+# - cmake is used to generate build systems for C++ projects
+# - g++ is used to compile C++ code
+# - git is used for version control
+# - sudo is used for administrator privileges
 
 # Add a non-root user to adhere to security best-practices.
 ARG USERNAME=dev
