@@ -45,6 +45,6 @@ USER $USERNAME
 
 # As the user, make the directory we will map the volume to, as the user, so it has proper permissions
 ARG VOLUME_DIR=/home/$USERNAME/vol
-RUN mkdir -p $VOLUMES_DIR
+RUN mkdir -p $VOLUME_DIR
 
 WORKDIR /home/$USERNAME
