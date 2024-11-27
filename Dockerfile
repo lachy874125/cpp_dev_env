@@ -25,11 +25,13 @@ ca-certificates \
 cmake \
 g++ \
 git \
+openssh-server \
 sudo
 # - ca-certificates is used for github authentication
 # - cmake is used to generate build systems for C++ projects
 # - g++ is used to compile C++ code
 # - git is used for version control
+# - openssh-server is used for accessing the container via ssh
 # - sudo is used for administrator privileges
 
 # Add a non-root user to adhere to security best-practices.
