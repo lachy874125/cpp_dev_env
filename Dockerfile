@@ -47,16 +47,17 @@ RUN echo "$PUBLIC_KEY" > /home/$USERNAME/.ssh/authorized_keys && \
     chmod 600 /home/$USERNAME/.ssh/authorized_keys && \
     chown -R $USERNAME:$USERNAME /home/$USERNAME/.ssh
 
-# Configure the SSH server
+# Create the SSH server runtime directory
+# Disable password authentication
+# Modifies the SSH PAM configuration to avoid potential login issues in container environments
 RUN mkdir -p /var/run/sshd && \
-    sed -i 's/#PubkeyAuthentication yes/PubkeyAuthentication yes/' /etc/ssh/sshd_config && \
     sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config && \
     sed -i 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' /etc/pam.d/sshd
 
 # Expose SSH port
 EXPOSE 22
 
-# Set volume directory
+# Set volume directory and permissions
 ARG VOLUME_DIR=/home/$USERNAME/vol
 RUN mkdir -p $VOLUME_DIR && chown -R $USERNAME:$USERNAME $VOLUME_DIR
 
