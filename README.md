@@ -1,16 +1,29 @@
-# C++ Linux-based development environment in Docker
+# C/C++ Linux-based development environment in Docker
 
-A lightweight and portable Docker-based development environment for C++ programming. I use this setup for creating consistent, isolated Linux environments for development and testing.
+A Dockerfile for creating consistent, isolated, lightweight, and portable Linux development environments for C/C++ development and testing. The containers can optionally be built with supplied SSH keys to enable IDEs external to the container to edit code within the container and make use of the container's libraries, compilers, and other resources.
 
 ## Features
-- Non-root user `dev` with sudo privileges for secure and flexible operations.
+- Optional SSH access to the container for development with preferred IDEs.
+- Pre-installed tools: cmake, g++, git, and more (feel free to add your own).
 - Persistent storage through Docker volumes.
-- SSH access to the container for remote development.
-- Pre-installed tools: cmake, g++, git, and more.
+- Non-root user `dev` with sudo privileges for secure and flexible operations.
 
-## Instructions
+## Instructions for containers without SSH capabilities
 Before starting, ensure that Docker is installed on the host machine.
 
+### Build the Docker image
+Run the following command to build the Docker image:
+```bash
+docker build --target base -t cpp_dev .
+```
+### Create and start a Docker container
+To create a docker container, attach/create a volume, start it and attach a terminal:
+```bash
+docker run -it --name container_name --mount type=volume,src=volume_name,dst=/home/dev/vol cpp_dev bash
+```
+- If the volume doesn't exist, Docker will create it automatically.
+
+## Instructions for containers with SSH capabilities
 ### Generate an SSH key (if you don't already have one)
 1. Run the following command in a terminal:
 ```bash
@@ -27,25 +40,26 @@ Run the following command to build the Docker image:
 ```bash
 docker build --secret id=ssh_key,src=/path/to/your/public/key.pub -t cpp_dev .
 ```
+- This will allow docker to build with your supplied SSH public key without it becoming part of any image layers. This would otherwise be a security concern.
 
 ### Create and start a Docker container
 
-To create a docker container, map the SSH port to 2222 (or any other port of your choosing), attach/create a volume, and start it in the background:
+To create a docker container, map the SSH port to port 2222 (or any other port of your choosing), attach/create a volume, and start it in the background:
 
 ```bash
 docker run -d -p 2222:22 --name container_name --mount type=volume,src=volume_name,dst=/home/dev/vol cpp_dev
 ```
 
-- Note: if the volume doesn't exist, Docker will create it automatically.
+- To start in a detached state, replace `-it` with `-d`.
 
-### Attach to a running detached container
-
-If the container is running in a detached state (no interactive terminal), you can attach to it with:
+### Attach to the running detached container
 
 ```bash
 docker exec -it cpp_dev bash
 ```
+- The reason we start the SSH-enabled container in a detached state and then attach a terminal after is because if we do a `docker run -it ... cpp_dev bash` the final command of the Dockerfile which starts the SSH daemon will be overwritten with `bash` and won't start.
 
+## Other useful commands
 ### Start a stopped container
 
 If the container already exists but isn't running, you can start and attach to it with:
@@ -53,7 +67,6 @@ If the container already exists but isn't running, you can start and attach to i
 ```bash
 docker start -ai cpp_dev
 ```
-
 
 ### Exit the Container
 

@@ -1,20 +1,27 @@
 # INSTRUCTIONS:
-# To build the docker container and pass in a public ssh key for remote access (replace with your own public key filepath):
+#
+# To build the base docker image (without SSH functionality):
+# docker build --target base -t cpp_dev .
+#
+# To create the base docker container, attach/create a volume, start it, and attach a terminal:
+# docker run -it --name container_name --mount type=volume,src=volume_name,dst=/home/dev/vol cpp_dev bash
+#
+# To build the SSH-enabled docker image and pass in a public ssh key for remote access (replace with your own public key filepath):
 # docker build --secret id=ssh_key,src=/path/to/your/public/key.pub -t cpp_dev .
 # 
-# To create the docker container, map the ssh port, attach/create a volume, and start it in the background:
+# To create the SSH-enabled docker container, map the ssh port, attach/create a volume, and start it in the background:
 # docker run -d -p 2222:22 --name container_name --mount type=volume,src=volume_name,dst=/home/dev/vol cpp_dev
 #
-# To open a terminal inside the running container:
+# To attach a terminal to a running container:
 # docker exec -it cpp_dev bash
 #
-# To start the existing container and open the terminal:
+# To start the existing container and attach a terminal:
 # docker start -ai cpp_dev bash
 #
 # To exit:
 # exit
 
-FROM ubuntu:24.04
+FROM ubuntu:24.04 AS base
 SHELL ["/bin/bash", "-c"]
 LABEL Maintainer="LachlanTaylor"
 LABEL Description="Ubuntu development environment for C++"
@@ -25,13 +32,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     cmake \
     g++ \
     git \
-    openssh-server \
     sudo
 # - ca-certificates is used for github authentication
 # - cmake is used to generate build systems for C++ projects
 # - g++ is used to compile C++ code
 # - git is used for version control
-# - openssh-server is used for accessing the container via ssh
 # - sudo is used for administrator privileges
 
 # Add a non-root user
@@ -40,6 +45,23 @@ RUN useradd --create-home --shell /bin/bash $USERNAME
 
 # Grant sudo privileges to the user
 RUN echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+# Set volume directory and permissions
+ARG VOLUME_DIR=/home/$USERNAME/vol
+RUN mkdir -p $VOLUME_DIR && chown -R $USERNAME:$USERNAME $VOLUME_DIR
+
+# Set working directory
+WORKDIR /home/$USERNAME
+
+# Default CMD for non-SSH version
+CMD ["bash"]
+
+
+# SSH-enabled version
+FROM base AS ssh
+RUN apt-get install -y --no-install-recommends \
+    openssh-server
+# - openssh-server is used for accessing the container via ssh
 
 # Set up SSH for the dev user
 RUN mkdir -p /home/$USERNAME/.ssh && chmod 700 /home/$USERNAME/.ssh
@@ -59,13 +81,6 @@ RUN mkdir -p /var/run/sshd && \
 
 # Expose SSH port
 EXPOSE 22
-
-# Set volume directory and permissions
-ARG VOLUME_DIR=/home/$USERNAME/vol
-RUN mkdir -p $VOLUME_DIR && chown -R $USERNAME:$USERNAME $VOLUME_DIR
-
-# Set working directory
-WORKDIR /home/$USERNAME
 
 # Start SSH daemon
 CMD ["/usr/sbin/sshd", "-D"]
