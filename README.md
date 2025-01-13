@@ -60,14 +60,14 @@ docker exec -it cpp_dev bash
 - The reason we start the SSH-enabled container in a detached state and then attach a terminal after is because if we do a `docker run -it ... cpp_dev bash` the final command of the Dockerfile which starts the SSH daemon will be overwritten with `bash` and won't start.
 
 ## Other useful commands
-### Start a stopped container
+### Start an exited container
 
-If the container already exists but isn't running, you can start and attach to it with:
+If the container already exists but has been exited (revealed by `docker ps -a`), you can restart it with:
 
 ```bash
-docker start -ai cpp_dev
+docker start cpp_dev
 ```
-
+You can then attach a terminal to it with the previously mentioned `exec` command.
 ### Exit the Container
 
 To exit the container, type:

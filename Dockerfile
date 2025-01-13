@@ -15,8 +15,8 @@
 # To attach a terminal to a running container:
 # docker exec -it cpp_dev bash
 #
-# To start the existing container and attach a terminal:
-# docker start -ai cpp_dev bash
+# To restart an exited container:
+# docker start cpp_dev
 #
 # To exit:
 # exit
