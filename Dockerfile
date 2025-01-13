@@ -50,8 +50,9 @@ RUN echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 ARG VOLUME_DIR=/home/$USERNAME/vol
 RUN mkdir -p $VOLUME_DIR && chown -R $USERNAME:$USERNAME $VOLUME_DIR
 
-# Set working directory
+# Set working directory and user
 WORKDIR /home/$USERNAME
+USER $USERNAME
 
 # Default CMD for non-SSH version
 CMD ["bash"]
@@ -59,6 +60,10 @@ CMD ["bash"]
 
 # SSH-enabled version
 FROM base AS ssh
+
+# Switch to root for all SSH commands
+USER root
+
 RUN apt-get install -y --no-install-recommends \
     openssh-server
 # - openssh-server is used for accessing the container via ssh

@@ -1,14 +1,14 @@
 # C/C++ Linux-based development environment in Docker
 
-A Dockerfile for creating consistent, isolated, lightweight, and portable Linux development environments for C/C++ development and testing. The containers can optionally be built with supplied SSH keys to enable IDEs external to the container to edit code within the container and make use of the container's libraries, compilers, and other resources.
+A Dockerfile for creating consistent, isolated, lightweight, and portable Linux development environments for C/C++ development and testing. Preferred IDEs installed on the host machine can be used within the containers either natively or via SSH connection. This means an editor such as VS Code, installed on the host, can point to a directory within the container and develop within it as if it were installed within the container. It can therefore make use of the container's libraries, compilers, and other resources. For IDE's without native container support, the containers can optionally be built with supplied SSH keys to enable external SSH connection to the container.
 
 ## Features
-- Optional SSH access to the container for development with preferred IDEs.
-- Pre-installed tools: cmake, g++, git, and more (feel free to add your own).
+- Pre-installed development tools: cmake, g++, git, and more (feel free to add your own).
 - Persistent storage through Docker volumes.
 - Non-root user `dev` with sudo privileges for secure and flexible operations.
+- Optional SSH access to the container for development with preferred IDEs.
 
-## Instructions for containers without SSH capabilities
+## Instructions for containers without SSH access
 Before starting, ensure that Docker is installed on the host machine.
 
 ### Build the Docker image
@@ -23,7 +23,31 @@ docker run -it --name container_name --mount type=volume,src=volume_name,dst=/ho
 ```
 - If the volume doesn't exist, Docker will create it automatically.
 
-## Instructions for containers with SSH capabilities
+### Exit the Container
+
+To exit the container, type:
+
+```docker
+exit
+```
+### Start an exited container
+
+If the container already exists but has been exited (revealed by `docker ps -a`), you can restart and attach to it with:
+
+```bash
+docker start -ai cpp_dev
+```
+
+### Developing with VS Code
+1. Install the Dev Containers extension for VS Code.
+2. Ensure the container is running.
+3. Open the Remote Explorer tab in VS Code. Ensure the dropdown is set to "Dev Containers".
+4. The docker container should now be showing in the list. Right-click and connect.
+
+Note: if you are running Docker directly within WSL (not Docker Desktop on Windows), you have to open VS Code from WSL instead of Windows, otherwise the container will not appear. To do this, in WSL simply run `code`.
+
+
+## Instructions for containers with SSH access
 ### Generate an SSH key (if you don't already have one)
 1. Run the following command in a terminal:
 ```bash
@@ -50,8 +74,6 @@ To create a docker container, map the SSH port to port 2222 (or any other port o
 docker run -d -p 2222:22 --name container_name --mount type=volume,src=volume_name,dst=/home/dev/vol cpp_dev
 ```
 
-- To start in a detached state, replace `-it` with `-d`.
-
 ### Attach to the running detached container
 
 ```bash
@@ -59,7 +81,6 @@ docker exec -it cpp_dev bash
 ```
 - The reason we start the SSH-enabled container in a detached state and then attach a terminal after is because if we do a `docker run -it ... cpp_dev bash` the final command of the Dockerfile which starts the SSH daemon will be overwritten with `bash` and won't start.
 
-## Other useful commands
 ### Start an exited container
 
 If the container already exists but has been exited (revealed by `docker ps -a`), you can restart it with:
@@ -67,17 +88,9 @@ If the container already exists but has been exited (revealed by `docker ps -a`)
 ```bash
 docker start cpp_dev
 ```
-You can then attach a terminal to it with the previously mentioned `exec` command.
-### Exit the Container
+- You can then attach a terminal to it with the previously mentioned exec command.
 
-To exit the container, type:
-
-```docker
-exit
-```
-
-## Optional: Editing code with VS Code
-I use Visual Studio Code installed on my Windows host as my code editor. Normally VS Code on Windows doesn't have access to the contents of the container. However, this can be overcome by connecting to the container via SSH. To edit within the container and utilise the container's programming resources (e.g., compilers, libraries):
+### Developing with VS Code
 1. Install the Remote - SSH extension for VS Code.
 2. In VS Code, click "F1" to open the Command Palette.
 3. Type and select: "Remote-SSH: Open SSH Configuration File..."
