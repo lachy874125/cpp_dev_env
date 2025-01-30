@@ -31,12 +31,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     cmake \
     g++ \
+    gdb \
     git \
+    make \
     sudo
 # - ca-certificates is used for github authentication
 # - cmake is used to generate build systems for C++ projects
 # - g++ is used to compile C++ code
+# - gdb is used for debugging
 # - git is used for version control
+# - make is used for building projects
 # - sudo is used for administrator privileges
 
 # Add a non-root user
